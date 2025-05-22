@@ -14,5 +14,8 @@
   "type": "module",
   "workspaces": [
     "src/pictures-site-frontend"
-  ]
+  ],
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
 }

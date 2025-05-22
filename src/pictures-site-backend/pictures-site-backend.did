@@ -1,3 +1,18 @@
+type ImageData = record {
+    id : nat64;
+    name : text;
+    content_type : text;
+    data : blob
+};
+
+type ImageInfo = record {
+    id : nat64;
+    name : text;
+    content_type : text
+};
+
 service : {
-    "greet": (text) -> (text) query;
+    upload_image : (text, text, blob) -> (nat64);
+    get_image : (nat64) -> (opt ImageData) query;
+    list_images : () -> (vec ImageInfo) query
 }

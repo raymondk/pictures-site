@@ -1,61 +1,118 @@
-# `pictures-site`
+# Pictures Site - Photo Gallery on Internet Computer
 
-Welcome to your new `pictures-site` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+A decentralized photo gallery application built on the Internet Computer blockchain. Users can upload, view, and manage their photos in a secure, decentralized environment.
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+## Features
 
-To learn more before you start working with `pictures-site`, see the following documentation available online:
+- **Photo Upload**: Upload images directly to the Internet Computer
+- **Photo Gallery**: View all uploaded photos in a responsive grid layout
+- **Decentralized Storage**: Photos are stored on-chain using Internet Computer's asset storage
+- **Secure**: Content Security Policy configured to prevent XSS attacks while allowing blob URLs for image display
 
-- [Quick Start](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
-- [SDK Developer Tools](https://internetcomputer.org/docs/current/developer-docs/setup/install)
-- [Rust Canister Development Guide](https://internetcomputer.org/docs/current/developer-docs/backend/rust/)
-- [ic-cdk](https://docs.rs/ic-cdk)
-- [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
-- [Candid Introduction](https://internetcomputer.org/docs/current/developer-docs/backend/candid/)
+## Architecture
 
-If you want to start working on your project right away, you might want to try the following commands:
+### Backend (Rust)
 
-```bash
-cd pictures-site/
-dfx help
-dfx canister --help
+- **Canister**: `pictures-site-backend`
+- **Language**: Rust with ic-cdk
+- **Functionality**: Handles photo storage, retrieval, and metadata management
+
+### Frontend (TypeScript/React)
+
+- **Canister**: `pictures-site-frontend`
+- **Framework**: React with TypeScript
+- **Build Tool**: Vite
+- **Styling**: CSS with responsive design
+
+## Getting Started
+
+### Prerequisites
+
+- [DFX SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install) installed
+- Node.js and npm
+
+### Local Development
+
+1. **Start the Internet Computer replica**:
+
+   ```bash
+   dfx start --clean --background
+   ```
+
+2. **Deploy the canisters**:
+
+   ```bash
+   dfx deploy
+   ```
+
+3. **Access the application**:
+   - Frontend: `http://u6s2n-gx777-77774-qaaba-cai.localhost:4943/`
+   - Backend Candid UI: `http://127.0.0.1:4943/?canisterId=uzt4z-lp777-77774-qaabq-cai&id=uxrrr-q7777-77774-qaaaq-cai`
+
+### Development Workflow
+
+- **Generate Candid interfaces** after backend changes:
+
+  ```bash
+  npm run generate
+  ```
+
+- **Frontend development server** (if needed):
+  ```bash
+  npm start
+  ```
+
+## Project Structure
+
+```
+src/
+├── pictures-site-backend/          # Rust backend canister
+│   ├── src/lib.rs                 # Main backend logic
+│   ├── Cargo.toml                 # Rust dependencies
+│   └── pictures-site-backend.did  # Candid interface
+└── pictures-site-frontend/         # React frontend canister
+    ├── src/
+    │   ├── App.tsx                # Main React component
+    │   ├── index.tsx              # Entry point
+    │   └── *.css                  # Styling
+    ├── public/
+    │   ├── index.html             # HTML template
+    │   └── .ic-assets.json5       # Asset configuration & CSP
+    ├── package.json               # Node dependencies
+    └── vite.config.ts             # Vite configuration
 ```
 
-## Running the project locally
+## Security Features
 
-If you want to test your project locally, you can use the following commands:
+- **Content Security Policy**: Configured to prevent XSS attacks while allowing necessary resources
+- **Blob URL Support**: CSP allows `blob:` URLs for displaying uploaded images
+- **Frame Protection**: X-Frame-Options set to DENY to prevent clickjacking
+- **HTTPS Enforcement**: Strict-Transport-Security header configured
 
-```bash
-# Starts the replica, running in the background
-dfx start --background
+## Technical Notes
 
-# Deploys your canisters to the replica and generates your candid interface
-dfx deploy
-```
+### Content Security Policy Fix
 
-Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
+The application includes a fix for displaying uploaded images by allowing `blob:` URLs in the CSP `img-src` directive. This resolves the issue where uploaded images would appear as broken links.
 
-If you have made changes to your backend canister, you can generate a new candid interface with
+### Asset Configuration
 
-```bash
-npm run generate
-```
+The `.ic-assets.json5` file in the frontend public directory configures:
 
-at any time. This is recommended before starting the frontend development server, and will be run automatically any time you run `dfx deploy`.
+- Content Security Policy headers
+- Permissions Policy for enhanced security
+- Asset serving rules for the Internet Computer
 
-If you are making frontend changes, you can start a development server with
+## Contributing
 
-```bash
-npm start
-```
+1. Make your changes
+2. Test locally with `dfx deploy`
+3. Commit your changes with descriptive messages
+4. Ensure all security policies are maintained
 
-Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
+## Resources
 
-### Note on frontend environment variables
-
-If you are hosting frontend code somewhere without using DFX, you may need to make one of the following adjustments to ensure your project does not fetch the root key in production:
-
-- set`DFX_NETWORK` to `ic` if you are using Webpack
-- use your own preferred method to replace `process.env.DFX_NETWORK` in the autogenerated declarations
-  - Setting `canisters -> {asset_canister_id} -> declarations -> env_override to a string` in `dfx.json` will replace `process.env.DFX_NETWORK` with the string in the autogenerated declarations
-- Write your own `createActor` constructor
+- [Internet Computer Documentation](https://internetcomputer.org/docs/)
+- [Rust CDK Documentation](https://docs.rs/ic-cdk)
+- [React Documentation](https://react.dev/)
+- [Vite Documentation](https://vitejs.dev/)

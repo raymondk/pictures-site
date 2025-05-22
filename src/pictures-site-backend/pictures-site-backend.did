@@ -1,32 +1,36 @@
+type HeaderField = record { text; text };
+
+type HttpRequest = record {
+    method : text;
+    url : text;
+    headers : vec HeaderField;
+    body : blob
+};
+
+type HttpResponse = record {
+    status_code : nat16;
+    headers : vec HeaderField;
+    body : blob
+};
+
+type ImageId = nat64;
+
 type ImageData = record {
-    id : nat64;
+    id : ImageId;
     name : text;
     content_type : text;
     data : blob
 };
 
 type ImageInfo = record {
-    id : nat64;
+    id : ImageId;
     name : text;
     content_type : text
 };
 
-type HttpRequest = record {
-    method : text;
-    url : text;
-    headers : vec record { text; text };
-    body : blob
-};
-
-type HttpResponse = record {
-    status : nat16;
-    headers : vec record { text; text };
-    body : blob
-};
-
 service : {
-    upload_image : (text, text, blob) -> (nat64);
-    get_image : (nat64) -> (opt ImageData) query;
+    upload_image : (name : text, content_type : text, data : blob) -> (ImageId);
+    get_image : (id : ImageId) -> (opt ImageData) query;
     list_images : () -> (vec ImageInfo) query;
     http_request : (HttpRequest) -> (HttpResponse) query
 }

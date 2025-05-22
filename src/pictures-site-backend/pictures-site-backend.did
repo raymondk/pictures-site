@@ -11,8 +11,22 @@ type ImageInfo = record {
     content_type : text
 };
 
+type HttpRequest = record {
+    method : text;
+    url : text;
+    headers : vec record { text; text };
+    body : blob
+};
+
+type HttpResponse = record {
+    status : nat16;
+    headers : vec record { text; text };
+    body : blob
+};
+
 service : {
     upload_image : (text, text, blob) -> (nat64);
     get_image : (nat64) -> (opt ImageData) query;
-    list_images : () -> (vec ImageInfo) query
+    list_images : () -> (vec ImageInfo) query;
+    http_request : (HttpRequest) -> (HttpResponse) query
 }

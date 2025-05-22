@@ -8,12 +8,6 @@ interface ImageInfo {
   content_type: string;
 }
 
-interface ImageData {
-  id: bigint;
-  name: string;
-  content_type: string;
-  data: Uint8Array;
-}
 
 function App() {
   const [images, setImages] = useState<ImageInfo[]>([]);
@@ -73,10 +67,6 @@ function App() {
     }
   };
 
-  const getImageUrl = (imageId: bigint) => {
-    // Create a blob URL for the image
-    return `/image/${imageId}`;
-  };
 
   return (
     <div className="app">
@@ -125,37 +115,54 @@ interface ImageCardProps {
 }
 
 function ImageCard({ image }: ImageCardProps) {
-  const [imageData, setImageData] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    loadImageData();
-  }, [image.id]);
+  const getImageUrl = (imageId: bigint, contentType: string) => {
+    // Use HTTP gateway URL to load images directly from backend canister
+    const canisterId = import.meta.env.VITE_CANISTER_ID_PICTURES_SITE_BACKEND || 'uxrrr-q7777-77774-qaaaq-cai';
 
-  const loadImageData = async () => {
-    try {
-      const data = await pictures_site_backend.get_image(image.id);
-      if (data && data.length > 0) {
-        const imageDataObj = data[0] as ImageData;
-        const blob = new Blob([imageDataObj.data], { type: imageDataObj.content_type });
-        const url = URL.createObjectURL(blob);
-        setImageData(url);
-      }
-    } catch (error) {
-      console.error('Error loading image data:', error);
-    } finally {
-      setLoading(false);
+    // Generate appropriate file extension based on content type
+    let extension = '';
+    if (contentType.includes('jpeg') || contentType.includes('jpg')) {
+      extension = '.jpg';
+    } else if (contentType.includes('png')) {
+      extension = '.png';
+    } else if (contentType.includes('gif')) {
+      extension = '.gif';
+    } else if (contentType.includes('webp')) {
+      extension = '.webp';
+    } else if (contentType.includes('svg')) {
+      extension = '.svg';
     }
+
+    return `http://${canisterId}.localhost:4943/image/${imageId}${extension}`;
+  };
+
+  const handleImageLoad = () => {
+    setLoading(false);
+  };
+
+  const handleImageError = () => {
+    setLoading(false);
+    setError(true);
   };
 
   return (
     <div className="image-card">
-      {loading ? (
+      {loading && !error && (
         <div className="image-placeholder">Loading...</div>
-      ) : imageData ? (
-        <img src={imageData} alt={image.name} />
-      ) : (
+      )}
+      {error ? (
         <div className="image-placeholder">Failed to load</div>
+      ) : (
+        <img
+          src={getImageUrl(image.id, image.content_type)}
+          alt={image.name}
+          onLoad={handleImageLoad}
+          onError={handleImageError}
+          style={{ display: loading ? 'none' : 'block' }}
+        />
       )}
       <div className="image-info">
         <div className="image-name">{image.name}</div>

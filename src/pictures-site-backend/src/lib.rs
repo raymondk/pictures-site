@@ -2,6 +2,21 @@ use candid::{CandidType, Deserialize};
 use serde::Serialize;
 use std::collections::HashMap;
 
+#[derive(Clone, Debug, CandidType, Deserialize)]
+pub struct HttpRequest {
+    pub method: String,
+    pub url: String,
+    pub headers: Vec<(String, String)>,
+    pub body: Vec<u8>,
+}
+
+#[derive(Clone, Debug, CandidType, Deserialize)]
+pub struct HttpResponse {
+    pub status: u16,
+    pub headers: Vec<(String, String)>,
+    pub body: Vec<u8>,
+}
+
 type ImageId = u64;
 
 #[derive(Clone, Debug, CandidType, Deserialize, Serialize)]
@@ -65,4 +80,38 @@ fn list_images() -> Vec<ImageInfo> {
             })
             .collect()
     })
+}
+
+#[ic_cdk::query]
+fn http_request(request: HttpRequest) -> HttpResponse {
+    let path = request.url.trim_start_matches('/');
+
+    // Handle image requests like /image/123.jpg or /image/123
+    if let Some(image_path) = path.strip_prefix("image/") {
+        // Extract image ID, ignoring any file extension
+        let image_id_str = image_path.split('.').next().unwrap_or(image_path);
+        if let Ok(image_id) = image_id_str.parse::<ImageId>() {
+            if let Some(image) = IMAGES.with(|images| images.borrow().get(&image_id).cloned()) {
+                return HttpResponse {
+                    status: 200,
+                    headers: vec![
+                        ("Content-Type".to_string(), image.content_type.clone()),
+                        (
+                            "Cache-Control".to_string(),
+                            "public, max-age=31536000, immutable".to_string(),
+                        ),
+                        ("ETag".to_string(), format!("\"{}\"", image_id)),
+                    ],
+                    body: image.data,
+                };
+            }
+        }
+    }
+
+    // Return 404 for unknown paths
+    HttpResponse {
+        status: 404,
+        headers: vec![("Content-Type".to_string(), "text/plain".to_string())],
+        body: b"Not Found".to_vec(),
+    }
 }

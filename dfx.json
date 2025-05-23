@@ -1,7 +1,7 @@
 {
   "canisters": {
     "backend": {
-      "candid": "src/pictures-site-backend/pictures-site-backend.did",
+      "candid": "backend/pictures-site-backend.did",
       "package": "pictures-site-backend",
       "type": "rust"
     },
@@ -10,7 +10,7 @@
         "backend"
       ],
       "source": [
-        "src/pictures-site-frontend/dist"
+        "frontend/dist"
       ],
       "type": "assets",
       "workspace": "pictures-site-frontend"

@@ -120,9 +120,26 @@ function ImageCard({ image }: ImageCardProps) {
 
   const getImageUrl = (imageId: bigint) => {
     // Use HTTP gateway URL to load images directly from backend canister
-    const canisterId = import.meta.env.CANISTER_ID_BACKEND || 'uxrrr-q7777-77774-qaaaq-cai';
+    // The variables will be replaced by vite
+    const canisterId = import.meta.env.CANISTER_ID_BACKEND;
+    const network = import.meta.env.DFX_NETWORK;
 
-    return `http://${canisterId}.localhost:4943/image/${imageId}`;
+    let urlSuffix: string;
+
+    switch(network) {
+      case 'playground':
+      case 'mainnet':
+      case 'ic':
+        urlSuffix = "icp0.io";
+        break;
+      default:
+        urlSuffix = "localhost:4943";
+        break;
+    }
+
+    let imageUrl = `http://${canisterId}.${urlSuffix}/image/${imageId}`;
+    console.debug(`Getting url: ${imageUrl} for network: ${network}`);
+    return imageUrl;
   };
 
   const handleImageLoad = () => {

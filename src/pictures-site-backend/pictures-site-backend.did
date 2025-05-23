@@ -30,7 +30,6 @@ type ImageInfo = record {
 
 service : {
     upload_image : (name : text, content_type : text, data : blob) -> (ImageId);
-    get_image : (id : ImageId) -> (opt ImageData) query;
     list_images : () -> (vec ImageInfo) query;
     http_request : (HttpRequest) -> (HttpResponse) query
 }

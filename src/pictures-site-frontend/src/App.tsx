@@ -118,25 +118,11 @@ function ImageCard({ image }: ImageCardProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const getImageUrl = (imageId: bigint, contentType: string) => {
+  const getImageUrl = (imageId: bigint) => {
     // Use HTTP gateway URL to load images directly from backend canister
     const canisterId = import.meta.env.VITE_CANISTER_ID_PICTURES_SITE_BACKEND || 'uxrrr-q7777-77774-qaaaq-cai';
 
-    // Generate appropriate file extension based on content type
-    let extension = '';
-    if (contentType.includes('jpeg') || contentType.includes('jpg')) {
-      extension = '.jpg';
-    } else if (contentType.includes('png')) {
-      extension = '.png';
-    } else if (contentType.includes('gif')) {
-      extension = '.gif';
-    } else if (contentType.includes('webp')) {
-      extension = '.webp';
-    } else if (contentType.includes('svg')) {
-      extension = '.svg';
-    }
-
-    return `http://${canisterId}.localhost:4943/image/${imageId}${extension}`;
+    return `http://${canisterId}.localhost:4943/image/${imageId}`;
   };
 
   const handleImageLoad = () => {
@@ -157,8 +143,7 @@ function ImageCard({ image }: ImageCardProps) {
         <div className="image-placeholder">Failed to load</div>
       ) : (
         <img
-          src={getImageUrl(image.id, image.content_type)}
-          alt={image.name}
+          src={getImageUrl(image.id)}
           onLoad={handleImageLoad}
           onError={handleImageError}
           style={{ display: loading ? 'none' : 'block' }}

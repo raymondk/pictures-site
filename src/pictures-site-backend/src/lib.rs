@@ -7,6 +7,7 @@ use ic_http_certification::{
     utils::{add_skip_certification_header, skip_certification_certified_data},
     HttpResponse, StatusCode,
 };
+use regex::Regex;
 use serde::Serialize;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -73,11 +74,6 @@ fn upload_image(name: String, content_type: String, data: Vec<u8>) -> ImageId {
 }
 
 #[ic_cdk::query]
-fn get_image(id: ImageId) -> Option<ImageData> {
-    IMAGES.with(|images| images.borrow().get(&id).cloned())
-}
-
-#[ic_cdk::query]
 fn list_images() -> Vec<ImageInfo> {
     IMAGES.with(|images| {
         images
@@ -100,52 +96,8 @@ fn create_not_found_response() -> HttpResponse<'static> {
     .build()
 }
 
-#[ic_cdk::query]
-fn http_request(request: HttpRequest) -> ic_http_certification::HttpResponse<'static> {
-    let path = request.url.trim_start_matches('/');
-
-    // Handle image requests like /image/123.jpg or /image/123
-    let Some(image_path) = path.strip_prefix("image/") else {
-        let mut response = create_not_found_response();
-        add_skip_certification_header(data_certificate().unwrap(), &mut response);
-        return response;
-    };
-
-    // Extract image ID, ignoring any file extension
-    let image_id_str = image_path.split('.').next().unwrap_or(image_path);
-    let Ok(image_id) = image_id_str.parse::<ImageId>() else {
-        let mut response = create_not_found_response();
-        add_skip_certification_header(data_certificate().unwrap(), &mut response);
-        return response;
-    };
-
-    let Some(image) = IMAGES.with(|images| images.borrow().get(&image_id).cloned()) else {
-        let mut response = create_not_found_response();
-        add_skip_certification_header(data_certificate().unwrap(), &mut response);
-        return response;
-    };
-
-    let etag = format!("\"{}\"", image_id);
-
-    // Check if client has the current version (ETag matching)
-    for HeaderField(name, value) in &request.headers {
-        if name.to_lowercase() == "if-none-match" && value == &etag {
-            let mut response = HttpResponse::builder()
-                .with_status_code(StatusCode::NOT_MODIFIED)
-                .with_headers(vec![
-                    ("ETag".to_string(), etag),
-                    (
-                        "Cache-Control".to_string(),
-                        "public, max-age=31536000, immutable".to_string(),
-                    ),
-                ])
-                .build();
-            add_skip_certification_header(data_certificate().unwrap(), &mut response);
-            return response;
-        }
-    }
-
-    let mut response = HttpResponse::ok(
+fn create_image_reponse(image: ImageData) -> HttpResponse<'static> {
+    HttpResponse::ok(
         Cow::Owned(image.data),
         vec![
             ("Content-Type".to_string(), image.content_type.clone()),
@@ -153,10 +105,36 @@ fn http_request(request: HttpRequest) -> ic_http_certification::HttpResponse<'st
                 "Cache-Control".to_string(),
                 "public, max-age=31536000, immutable".to_string(),
             ),
-            ("ETag".to_string(), etag),
-        ],
-    )
-    .build();
+        ]).build()
+}
+
+fn load_image(url: &str) -> Option<ImageData> {
+
+    let re = Regex::new(r"^/image/(\d+)$").unwrap();
+
+    // Try to match and extract the ID
+    if let Some(captures) = re.captures(url) {
+        // Parse the matched ID as u32
+        if let Some(matched_id) = captures.get(1) {
+            if let Ok(image_id) = matched_id.as_str().parse::<ImageId>() {
+                if let Some(image) = IMAGES.with(|images| images.borrow().get(&image_id).cloned()) {
+                    return Some(image);
+                }
+            }
+        }
+    }
+
+    None
+    
+}
+
+#[ic_cdk::query]
+fn http_request(request: HttpRequest) -> ic_http_certification::HttpResponse<'static> {
+
+    let mut response = match load_image(&request.url) {
+        Some(image) => create_image_reponse(image),
+        None => create_not_found_response()
+    };
 
     add_skip_certification_header(data_certificate().unwrap(), &mut response);
     response

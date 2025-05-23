@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { pictures_site_backend } from '../../declarations/pictures-site-backend';
+import { backend } from '../../declarations/backend';
 import './App.css';
 
 interface ImageInfo {
@@ -22,7 +22,7 @@ function App() {
   const loadImages = async () => {
     try {
       setLoading(true);
-      const imageList = await pictures_site_backend.list_images();
+      const imageList = await backend.list_images();
       setImages(imageList);
     } catch (error) {
       console.error('Error loading images:', error);
@@ -48,7 +48,7 @@ function App() {
       const arrayBuffer = await file.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
 
-      const imageId = await pictures_site_backend.upload_image(
+      const imageId = await backend.upload_image(
         file.name,
         file.type,
         uint8Array
@@ -120,7 +120,7 @@ function ImageCard({ image }: ImageCardProps) {
 
   const getImageUrl = (imageId: bigint) => {
     // Use HTTP gateway URL to load images directly from backend canister
-    const canisterId = import.meta.env.VITE_CANISTER_ID_PICTURES_SITE_BACKEND || 'uxrrr-q7777-77774-qaaaq-cai';
+    const canisterId = import.meta.env.CANISTER_ID_BACKEND || 'uxrrr-q7777-77774-qaaaq-cai';
 
     return `http://${canisterId}.localhost:4943/image/${imageId}`;
   };

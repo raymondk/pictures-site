@@ -1,13 +1,13 @@
 {
   "canisters": {
-    "pictures-site-backend": {
+    "backend": {
       "candid": "src/pictures-site-backend/pictures-site-backend.did",
       "package": "pictures-site-backend",
       "type": "rust"
     },
-    "pictures-site-frontend": {
+    "frontend": {
       "dependencies": [
-        "pictures-site-backend"
+        "backend"
       ],
       "source": [
         "src/pictures-site-frontend/dist"

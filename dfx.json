@@ -13,7 +13,7 @@
         "frontend/dist"
       ],
       "type": "assets",
-      "workspace": "pictures-site-frontend"
+      "workspace": "frontend"
     }
   },
   "defaults": {

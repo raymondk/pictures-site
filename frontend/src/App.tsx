@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { backend } from '../../declarations/backend';
+import { backend } from '../../src/declarations/backend';
 import './App.css';
 
 interface ImageInfo {

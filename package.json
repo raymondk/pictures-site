@@ -13,7 +13,7 @@
   },
   "type": "module",
   "workspaces": [
-    "src/pictures-site-frontend"
+    "frontend"
   ],
   "devDependencies": {
     "vite": "^6.3.5"

@@ -5,7 +5,7 @@ use ic_cdk::{
 };
 use ic_http_certification::{
     utils::{add_skip_certification_header, skip_certification_certified_data},
-    HttpResponse, StatusCode,
+    HttpResponse
 };
 use regex::Regex;
 use serde::Serialize;

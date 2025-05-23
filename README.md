@@ -4,8 +4,6 @@ A decentralized photo gallery application built on the Internet Computer blockch
 
 **WARNING** This is meant primarily as a demo to show how the response verification library can be used to fetch images with cache headers. It is not making use of authentication or certification - use it at your own risk.
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/raymondk/pictures-site)
-
 
 ## Features
 

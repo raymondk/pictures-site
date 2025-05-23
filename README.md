@@ -2,7 +2,7 @@
 
 A decentralized photo gallery application built on the Internet Computer blockchain. Users can upload, view, and manage their photos in a decentralized environment.
 
-**WARNING** This is meant primarily as a demo to show how the response verification library can be used to fetch images with cache headers. It is not making use of authentication or certification - use it at your own risk.
+**WARNING** This is meant primarily as a demo to show how the response verification library and http gateways can be used to serve images with cache headers. It is not making use of authentication or certification - use it at your own risk.
 
 
 ## Features
